@@ -20,7 +20,7 @@ class XliffModel(QAbstractTableModel):
         return len(self._headers)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if role in (Qt.DisplayRole, Qt.EditRole):
+        if role in (Qt.DisplayRole,):
             tu = self._data[index.row()]
             return tu.source if index.column() == 0 else tu.target
 
@@ -30,21 +30,5 @@ class XliffModel(QAbstractTableModel):
         else:
             return super().headerData(section, orientation, role)
 
-    # TODO: Edit this method if we add any readonly columns.
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        return super().flags(index) | Qt.ItemIsEditable
-
-    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
-        if index.isValid() and role == Qt.EditRole:
-            if index.column() == 0:
-                self._data[index.row()].source = value
-            else:
-                self._data[index.row()].target = value
-            self.dataChanged.emit(index, index, [role])
-            return True
-        else:
-            return False
-
     def save_data(self):
-
         pass
