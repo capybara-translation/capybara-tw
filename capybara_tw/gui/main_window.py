@@ -47,6 +47,9 @@ class Ui_MainWindow(object):
         self.editorGridLayout.setVerticalSpacing(2)
         self.editorGridLayout.setObjectName("editorGridLayout")
         self.nextEditor = TagEditor(self.editorGridWidget)
+        self.nextEditor.setStyleSheet("QTextEdit {\n"
+"    background: #e6e6e6\n"
+"}")
         self.nextEditor.setObjectName("nextEditor")
         self.editorGridLayout.addWidget(self.nextEditor, 3, 0, 1, 1)
         self.srcEditor = TagEditor(self.editorGridWidget)
@@ -56,6 +59,9 @@ class Ui_MainWindow(object):
         self.tgtEditor.setObjectName("tgtEditor")
         self.editorGridLayout.addWidget(self.tgtEditor, 2, 0, 1, 1)
         self.prevEditor = TagEditor(self.editorGridWidget)
+        self.prevEditor.setStyleSheet("QTextEdit {\n"
+"    background: #e6e6e6\n"
+"}")
         self.prevEditor.setObjectName("prevEditor")
         self.editorGridLayout.addWidget(self.prevEditor, 0, 0, 1, 1)
         self.translationGrid = TranslationGrid(self.splitter)

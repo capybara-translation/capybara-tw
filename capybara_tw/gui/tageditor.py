@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import re
 from enum import Enum, auto
 from PyQt5.QtGui import (QTextOption, QContextMenuEvent, QTextObjectInterface, QTextFormat, QTextCharFormat,
                          QTextDocument, QFontMetrics, QPainter, QPainterPath, QColor, QBrush, QPen, QKeySequence,
                          QTextCursor)
 from PyQt5.QtWidgets import (QTextEdit, QApplication)
-from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, QRegExp)
+from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, QRegExp, pyqtSignal)
 from capybara_tw.gui.wordboundary import BoundaryHandler
 
 OBJECT_REPLACEMENT_CHARACTER = 0xfffc
@@ -89,6 +90,13 @@ class TagTextObject(QObject, QTextObjectInterface):
 
 
 class TagEditor(QTextEdit):
+    start_tags = re.compile(r'({[biu_^]+?>|{[0-9]{1,2}>)')
+    end_tags = re.compile(r'(<[biu_^]+?\}|<[0-9]{1,2}\})')
+    empty_tags = re.compile(r'({[0-9]{1,2}\}|{j\})')
+    all_tags = re.compile(r'({[biu_^]+?>|<[biu_^]+?\}|{[0-9]{1,2}>|<[0-9]{1,2}\}|{[0-9]{1,2}\}|{j\})')
+
+    segmentEdited = pyqtSignal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.is_undoing = False
@@ -103,10 +111,34 @@ class TagEditor(QTextEdit):
         self.mouse_event_filter = BoundaryHandler()
         self.mouse_event_filter.install_textedit(self)
 
-        self.__register_tag_typ()
+        self.__register_tag_type()
         self.textChanged.connect(self.__on_text_changed)
 
-    def __register_tag_typ(self) -> None:
+    def initialize(self, text):
+        text = text or ''
+        self.setText('')
+        cursor = self.textCursor()
+        for run in self.all_tags.split(text):
+            if self.start_tags.search(run):
+                name = run.strip('{>')
+                self.insert_tag(cursor, name, name, TagKind.START)
+            elif self.end_tags.search(run):
+                name = run.strip('<}')
+                self.insert_tag(cursor, name, name, TagKind.END)
+            elif self.empty_tags.search(run):
+                name = run.strip('{}')
+                self.insert_tag(cursor, name, name, TagKind.EMPTY)
+            else:
+                run = run.replace('\r\n', '\n').replace('\r', '\n')
+                run = run.replace('\n', '<br/>')
+                cursor.insertHtml(f'<span>{run}</span>')
+        self.document().clearUndoRedoStacks()
+
+    def set_readonly_with_text_selectable(self):
+        self.setReadOnly(True)
+        self.setTextInteractionFlags(self.textInteractionFlags() | Qt.TextSelectableByKeyboard)
+
+    def __register_tag_type(self) -> None:
         document_layout = self.document().documentLayout()
         document_layout.registerHandler(TagTextObject.type, TagTextObject(self))
 
@@ -147,6 +179,7 @@ class TagEditor(QTextEdit):
 
         self.textCursor().endEditBlock()
         self.blockSignals(blocked)
+        self.segmentEdited.emit(self.to_model_data())
 
     def contextMenuEvent(self, e: QContextMenuEvent) -> None:
         menu = self.createStandardContextMenu()

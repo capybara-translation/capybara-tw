@@ -32,5 +32,15 @@ class XliffModel(QAbstractTableModel):
         else:
             return super().headerData(section, orientation, role)
 
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if index.isValid() and role == Qt.EditRole:
+            if index.column() == 0:
+                self._data[index.row()].source = value
+            else:
+                self._data[index.row()].target = value
+            self.dataChanged.emit(index, index, [role])
+            return True
+        return False
+
     def save_data(self):
         pass

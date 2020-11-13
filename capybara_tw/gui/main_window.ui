@@ -81,7 +81,13 @@
          <number>2</number>
         </property>
         <item row="3" column="0">
-         <widget class="TagEditor" name="nextEditor"/>
+         <widget class="TagEditor" name="nextEditor">
+          <property name="styleSheet">
+           <string notr="true">QTextEdit {
+	background: #e6e6e6
+}</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="TagEditor" name="srcEditor"/>
@@ -90,7 +96,13 @@
          <widget class="TagEditor" name="tgtEditor"/>
         </item>
         <item row="0" column="0">
-         <widget class="TagEditor" name="prevEditor"/>
+         <widget class="TagEditor" name="prevEditor">
+          <property name="styleSheet">
+           <string notr="true">QTextEdit {
+	background: #e6e6e6
+}</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

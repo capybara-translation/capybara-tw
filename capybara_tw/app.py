@@ -4,18 +4,28 @@ from PyQt5.QtCore import QDir
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QFileDialog
 
-from capybara_tw.gui.QToolTipper import QToolTipper
 from capybara_tw.gui.main_window import Ui_MainWindow
 from capybara_tw.xliff_model import XliffModel
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
         self.model = None
-        self.translationGrid.viewport().installEventFilter(QToolTipper(self.translationGrid))
+        self.prevEditor.set_readonly_with_text_selectable()
+        self.nextEditor.set_readonly_with_text_selectable()
+        self.srcEditor.set_readonly_with_text_selectable()
+
+        self.translationGrid.currentSourceSegmentChanged.connect(self.srcEditor.initialize)
+        self.translationGrid.currentTargetSegmentChanged.connect(self.tgtEditor.initialize)
+        self.translationGrid.previousSegmentChanged.connect(self.prevEditor.initialize)
+        self.translationGrid.nextSegmentChanged.connect(self.nextEditor.initialize)
+
+        self.srcEditor.segmentEdited.connect(self.translationGrid.set_source_segment)
+        self.tgtEditor.segmentEdited.connect(self.translationGrid.set_target_segment)
 
         bold_icon = QIcon(':/icon/bold.png')
         self.actionBold.setIcon(bold_icon)
@@ -56,3 +66,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filename:
             self.model = XliffModel(filename)
             self.translationGrid.setModel(self.model)
+            self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)
