@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import re
 from PyQt5.QtWidgets import (QStyledItemDelegate, QWidget, QStyleOptionViewItem, QApplication, QStyle)
-from PyQt5.QtCore import (Qt, QModelIndex, QAbstractItemModel, QRectF, QPointF, QSizeF)
-from PyQt5.QtGui import (QPainter, QTextDocument, QTextCursor)
+from PyQt5.QtCore import (Qt, QModelIndex, QAbstractItemModel, QRectF, QPointF, QSizeF, QSize)
+from PyQt5.QtGui import (QPainter, QTextDocument, QTextCursor, QTextOption)
 
-from capybara_tw.gui.tageditor import (TagEditor, TagKind)
+from capybara_tw.gui.tageditor import (TagEditor, TagKind, TagTextObject)
 
 
 class TagEditorDelegate(QStyledItemDelegate):
@@ -17,39 +17,55 @@ class TagEditorDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.doc = QTextDocument(self)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
+        print('createEditor')
         tageditor = TagEditor(parent)
+        tageditor.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         return tageditor
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
-        painter.save()
-        opt = QStyleOptionViewItem(option)
-        self.initStyleOption(opt, index)
+    # def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    #     size_hint = editor.sizeHint()
+    #     if option.rect.width() < size_hint.width():
+    #         option.rect.setWidth(size_hint.width())
+    #     if option.rect.height() < size_hint.height():
+    #         option.rect.setHeight(size_hint.height())
+    #     editor.setGeometry(option.rect)
 
-        cursor = QTextCursor(self.doc)
-        self.__init_editor_data(cursor, opt.text)
-        self.doc.setTextWidth(opt.rect.width())
-
-        style = QApplication.style() if opt.widget is None else opt.widget.style()
-        # Painting item without text
-        opt.text = ''
-        style.drawControl(QStyle.CE_ItemViewItem, opt, painter)
-
-        painter.translate(opt.rect.left(), opt.rect.top())
-        clip = QRectF(QPointF(), QSizeF(opt.rect.size()))
-        self.doc.drawContents(painter, clip)
-
-        painter.restore()
+    # def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    #     painter.save()
+    #     opt = QStyleOptionViewItem(option)
+    #     self.initStyleOption(opt, index)
+    #
+    #     doc = QTextDocument(self)
+    #     text_opt = QTextOption()
+    #     text_opt.setFlags(QTextOption.ShowTabsAndSpaces | QTextOption.ShowLineAndParagraphSeparators)
+    #     # text_opt.setWrapMode(QTextOption.WordWrap)
+    #     doc.setDefaultTextOption(text_opt)
+    #     doc_layout = doc.documentLayout()
+    #     doc_layout.registerHandler(TagTextObject.type, TagTextObject(self))
+    #     cursor = QTextCursor(doc)
+    #     self.__init_editor_data(cursor, opt.text)
+    #
+    #     style = QApplication.style() if opt.widget is None else opt.widget.style()
+    #     # Painting item without text
+    #     doc.setTextWidth(opt.rect.width())
+    #     opt.text = ''
+    #     style.drawControl(QStyle.CE_ItemViewItem, opt, painter)
+    #
+    #     painter.translate(opt.rect.left(), opt.rect.top())
+    #     clip = QRectF(QPointF(), QSizeF(opt.rect.size()))
+    #     doc.drawContents(painter, clip)
+    #
+    #     painter.restore()
 
     def setModelData(self, editor: TagEditor, model: QAbstractItemModel, index: QModelIndex) -> None:
-        print('setModelData')
+        # print('setModelData')
         if index.column() in (self.source_column, self.target_column):
             model.setData(index, editor.to_model_data(), Qt.EditRole)
 
     def setEditorData(self, editor: TagEditor, index: QModelIndex) -> None:
-        print('setEditorData')
+        # print('setEditorData')
         editor.setText('')
         cursor = editor.textCursor()
         if index.column() in (self.source_column, self.target_column):
@@ -80,4 +96,6 @@ class TagEditorDelegate(QStyledItemDelegate):
                 name = run.strip('{}')
                 TagEditor.insert_tag(cursor, name, name, TagKind.EMPTY)
             else:
+                run = run.replace('\r\n', '\n').replace('\r', '\n')
+                run = run.replace('\n', '<br/>')
                 cursor.insertHtml(f'<span>{run}</span>')

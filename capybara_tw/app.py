@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 from PyQt5.Qt import QMainWindow
-from PyQt5.QtGui import (QIcon, QKeySequence)
-from PyQt5.QtWidgets import (QFileDialog, QHeaderView, QAbstractItemView)
-from PyQt5.QtCore import QDir
+from PyQt5.QtGui import (QIcon, QKeySequence, QShowEvent)
+from PyQt5.QtWidgets import (QFileDialog, QHeaderView, QAbstractItemView, QAbstractScrollArea)
+from PyQt5.QtCore import (Qt, QDir, QModelIndex)
 from capybara_tw.gui.main_window import Ui_MainWindow
+from capybara_tw.gui.translation_grid import TranslationGrid
 from capybara_tw.xliff_model import XliffModel
 from capybara_tw.gui.tageditor_delegate import TagEditorDelegate
 
@@ -14,15 +15,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.model = None
-        self.tuTableView.setSortingEnabled(False)
-        self.tuTableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tuTableView.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.tuTableView.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        # self.tuTableView.horizontalHeader().sectionResized.connect(self.tuTableView.resizeRowsToContents)
+        self.translation_grid = TranslationGrid(self.defaultTab)
+        self.gridLayout.addWidget(self.translation_grid, 0, 0, 1, 1)
 
-        self.segment_delegate = TagEditorDelegate()
-        self.tuTableView.setItemDelegateForColumn(0, self.segment_delegate)
-        self.tuTableView.setItemDelegateForColumn(1, self.segment_delegate)
+        # self.tuTableView.setSortingEnabled(False)
+        # self.tuTableView.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.tuTableView.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        # self.tuTableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Auto-fit column width
+        # self.tuTableView.horizontalHeader().sectionResized.connect(self.tuTableView.resizeRowsToContents)
+        # self.tuTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.tuTableView.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+
+        # self.segment_delegate = TagEditorDelegate(self.tuTableView)
+        # self.tuTableView.setItemDelegateForColumn(0, self.segment_delegate)
+        # self.tuTableView.setItemDelegateForColumn(1, self.segment_delegate)
 
         bold_icon = QIcon(':/icon/bold.png')
         self.actionBold.setIcon(bold_icon)
@@ -53,6 +59,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.show()
 
+    def showEvent(self, a0: QShowEvent) -> None:
+        print('showEvent1')
+        super().showEvent(a0)
+        self.translation_grid.resizeRowsToContents()
+
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(
             self,
@@ -62,5 +73,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if filename:
             self.model = XliffModel(filename)
-            self.tuTableView.setModel(self.model)
-            # self.tuTableView.resizeRowsToContents()
+            self.translation_grid.setModel(self.model)
+            # self.tuTableView.viewport().update()
+            self.translation_grid.init_persistent_editors()
+            self.translation_grid.resizeRowsToContents()
+            # self.translation_grid.verticalHeader().setMinimumSectionSize()
+
+    def init_persistent_editors(self):
+        for i in range(self.tuTableView.model().rowCount()):
+            self.tuTableView.openPersistentEditor(self.tuTableView.model().index(i, 0, QModelIndex()))
+            self.tuTableView.openPersistentEditor(self.tuTableView.model().index(i, 1, QModelIndex()))
