@@ -1,6 +1,6 @@
 appdirs==1.4.4
 autopep8==1.5.4
-capybara-toolkit==0.1
+-e git+https://github.com/capybara-translation/capybara-toolkit.git@73d14bc9257ce26cd7854b9707d383dba39e2ad3#egg=capybara_toolkit
 certifi==2020.6.20
 chardet==3.0.4
 dataclasses-json==0.5.2
