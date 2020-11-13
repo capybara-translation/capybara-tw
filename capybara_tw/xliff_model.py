@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import typing
-from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt)
+
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+
 from capybara_toolkit.converter.mxliff import Mxliff
 
 
@@ -20,7 +22,7 @@ class XliffModel(QAbstractTableModel):
         return len(self._headers)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if role in (Qt.DisplayRole,):
+        if role in (Qt.DisplayRole, Qt.ToolTipRole):
             tu = self._data[index.row()]
             return tu.source if index.column() == 0 else tu.target
 

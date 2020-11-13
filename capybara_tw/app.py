@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 from PyQt5.Qt import QMainWindow
-from PyQt5.QtCore import (QDir)
-from PyQt5.QtGui import (QIcon, QKeySequence)
-from PyQt5.QtWidgets import (QFileDialog)
+from PyQt5.QtCore import QDir
+from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtWidgets import QFileDialog
 
+from capybara_tw.gui.QToolTipper import QToolTipper
 from capybara_tw.gui.main_window import Ui_MainWindow
 from capybara_tw.xliff_model import XliffModel
 
@@ -14,6 +15,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.model = None
+        self.translationGrid.viewport().installEventFilter(QToolTipper(self.translationGrid))
 
         bold_icon = QIcon(':/icon/bold.png')
         self.actionBold.setIcon(bold_icon)
