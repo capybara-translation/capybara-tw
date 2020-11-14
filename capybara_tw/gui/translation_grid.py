@@ -18,8 +18,8 @@ class TranslationGrid(QTableView):
 
     def selection_changed(self, selected: QItemSelection, deselected: QItemSelection) -> None:
         ci = self.selectionModel().currentIndex()
-        prev = ci.siblingAtRow(ci.row() - 1).data()
-        next_ = ci.siblingAtRow(ci.row() + 1).data()
+        prev = ci.sibling(ci.row() - 1, 0).data()
+        next_ = ci.sibling(ci.row() + 1, 0).data()
         src = ci.siblingAtColumn(0).data()
         tgt = ci.siblingAtColumn(1).data()
 
