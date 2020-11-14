@@ -23,7 +23,7 @@ class QToolTipper(QObject):
             item_text_width = fm.width(item_text)
             rect = view.visualRect(index)
             rect_width = rect.width()
-            if item_text_width > (rect_width - 20) and item_tool_tip:
+            if (item_text_width > (rect_width - 20) or '\n' in item_text) and item_tool_tip:
                 QToolTip.showText(event.globalPos(), item_tool_tip, view, rect)
             else:
                 QToolTip.hideText()
