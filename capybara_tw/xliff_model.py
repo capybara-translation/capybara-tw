@@ -22,6 +22,8 @@ class XliffModel(QAbstractTableModel):
         return len(self._headers)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if index.column() in (0, 1) and role == Qt.TextAlignmentRole:
+            return Qt.AlignTop
         if role in (Qt.DisplayRole,):
             tu = self._data[index.row()]
             return tu.source if index.column() == 0 else tu.target
