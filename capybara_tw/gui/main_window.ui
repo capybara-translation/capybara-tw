@@ -138,11 +138,6 @@
     <property name="title">
      <string>Format</string>
     </property>
-    <addaction name="actionBold"/>
-    <addaction name="actionItalic"/>
-    <addaction name="actionUnderlined"/>
-    <addaction name="actionSubscript"/>
-    <addaction name="actionSuperscript"/>
     <addaction name="actionDisplayHiddenCharacters"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -189,133 +184,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionBold"/>
-   <addaction name="actionItalic"/>
-   <addaction name="actionUnderlined"/>
-   <addaction name="actionSubscript"/>
-   <addaction name="actionSuperscript"/>
    <addaction name="actionDisplayHiddenCharacters"/>
    <addaction name="separator"/>
    <addaction name="actionConfirmSegment"/>
    <addaction name="actionUnconfirmSegment"/>
   </widget>
-  <action name="actionBold">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/icon/bold.png</normaloff>:/icon/bold.png</iconset>
-   </property>
-   <property name="text">
-    <string>Bold</string>
-   </property>
-   <property name="toolTip">
-    <string>Bold</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+B</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionItalic">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/icon/italic.png</normaloff>:/icon/italic.png</iconset>
-   </property>
-   <property name="text">
-    <string>Italic</string>
-   </property>
-   <property name="toolTip">
-    <string>Italic</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionUnderlined">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/icon/underlined.png</normaloff>:/icon/underlined.png</iconset>
-   </property>
-   <property name="text">
-    <string>Underlined</string>
-   </property>
-   <property name="toolTip">
-    <string>Underlined</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+U</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionSubscript">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/icon/subscript.png</normaloff>:/icon/subscript.png</iconset>
-   </property>
-   <property name="text">
-    <string>Subscript</string>
-   </property>
-   <property name="toolTip">
-    <string>Subscript</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+-</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionSuperscript">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/icon/superscript.png</normaloff>:/icon/superscript.png</iconset>
-   </property>
-   <property name="text">
-    <string>Superscript</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+_</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
-   </property>
-  </action>
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resources.qrc">

@@ -101,7 +101,6 @@ class TagEditor(QTextEdit):
         super().__init__(parent)
         self.is_undoing = False
         self.setAcceptRichText(False)
-        # self.setUndoRedoEnabled(False)
 
         self.key_event_filter = KeyEventFilter()
         self.key_event_filter.install_to(self)

@@ -32,31 +32,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.show()
 
     def __initialize_actions(self):
-        bold_icon = QIcon(':/icon/bold.png')
-        self.actionBold.setIcon(bold_icon)
-        self.actionBold.setToolTip(
-            f'{self.actionBold.toolTip()} ({self.actionBold.shortcut().toString(QKeySequence.NativeText)})')
-
-        italic_icon = QIcon(':/icon/italic.png')
-        self.actionItalic.setIcon(italic_icon)
-        self.actionItalic.setToolTip(
-            f'{self.actionItalic.toolTip()} ({self.actionItalic.shortcut().toString(QKeySequence.NativeText)})')
-
-        underlined_icon = QIcon(':/icon/underlined.png')
-        self.actionUnderlined.setIcon(underlined_icon)
-        self.actionUnderlined.setToolTip(
-            f'{self.actionUnderlined.toolTip()} ({self.actionUnderlined.shortcut().toString(QKeySequence.NativeText)})')
-
-        superscript_icon = QIcon(':/icon/superscript.png')
-        self.actionSuperscript.setIcon(superscript_icon)
-        self.actionSuperscript.setToolTip(
-            f'{self.actionSuperscript.toolTip()} ({self.actionSuperscript.shortcut().toString(QKeySequence.NativeText)})')
-
-        subscript_icon = QIcon(':/icon/subscript.png')
-        self.actionSubscript.setIcon(subscript_icon)
-        self.actionSubscript.setToolTip(
-            f'{self.actionSubscript.toolTip()} ({self.actionSubscript.shortcut().toString(QKeySequence.NativeText)})')
-
         paragraph_icon = QIcon(':/icon/paragraph.png')
         self.actionDisplayHiddenCharacters.setIcon(paragraph_icon)
         self.actionDisplayHiddenCharacters.setToolTip(
