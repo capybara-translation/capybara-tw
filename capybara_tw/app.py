@@ -27,6 +27,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.srcEditor.segmentEdited.connect(self.translationGrid.set_source_segment)
         self.tgtEditor.segmentEdited.connect(self.translationGrid.set_target_segment)
 
+        self.__initialize_actions()
+
+        self.show()
+
+    def __initialize_actions(self):
         bold_icon = QIcon(':/icon/bold.png')
         self.actionBold.setIcon(bold_icon)
         self.actionBold.setToolTip(
@@ -58,9 +63,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             f'{self.actionDisplayHiddenCharacters.toolTip()}')
         self.actionDisplayHiddenCharacters.triggered.connect(self.display_hidden_characters)
 
-        self.actionOpen.triggered.connect(self.open_file)
+        self.actionMoveToFirstSegment.setToolTip(
+            f'{self.actionMoveToFirstSegment.toolTip()} ({self.actionMoveToFirstSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToLastSegment.setToolTip(
+            f'{self.actionMoveToLastSegment.toolTip()} ({self.actionMoveToLastSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToNextSegment.setToolTip(
+            f'{self.actionMoveToNextSegment.toolTip()} ({self.actionMoveToNextSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToPreviousSegment.setToolTip(
+            f'{self.actionMoveToPreviousSegment.toolTip()} ({self.actionMoveToPreviousSegment.shortcut().toString(QKeySequence.NativeText)})')
 
-        self.show()
+        confirm_icon = QIcon(':/icon/confirm.png')
+        self.actionConfirmSegment.setIcon(confirm_icon)
+        self.actionConfirmSegment.setToolTip(
+            f'{self.actionConfirmSegment.toolTip()} ({self.actionConfirmSegment.shortcut().toString(QKeySequence.NativeText)})')
+
+        unconfirm_icon = QIcon(':/icon/unconfirm.png')
+        self.actionUnconfirmSegment.setIcon(unconfirm_icon)
+        self.actionUnconfirmSegment.setToolTip(
+            f'{self.actionUnconfirmSegment.toolTip()} ({self.actionUnconfirmSegment.shortcut().toString(QKeySequence.NativeText)})')
+
+        self.actionOpen.triggered.connect(self.open_file)
 
     def display_hidden_characters(self, display=False):
         self.prevEditor.display_hidden_characters(display)
