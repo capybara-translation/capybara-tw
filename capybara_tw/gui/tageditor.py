@@ -199,8 +199,7 @@ class TagEditor(QTextEdit):
             text = source.text().replace(chr(0xa), chr(LINE_SEPARATOR))
             super().insertPlainText(text)
 
-        # Called when a drag and drop operation is started, or when data is copied to the clipboard.
-
+    # Called when a drag and drop operation is started, or when data is copied to the clipboard.
     def createMimeDataFromSelection(self) -> QMimeData:
         mime = QMimeData()
         cursor = self.textCursor()
@@ -239,7 +238,7 @@ class TagEditor(QTextEdit):
 
     def to_model_data(self) -> str:
         start_pos = 0
-        end_pos = len(self.document().toPlainText())
+        end_pos = self.document().characterCount() - 1  # subtract len of paragraph separator at the end
         text = self.to_model_data_in_range(start_pos, end_pos)
         return text
 
