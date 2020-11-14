@@ -22,16 +22,16 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="centralGridLayout" rowstretch="0,0">
     <property name="leftMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="topMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <item row="1" column="0">
      <widget class="QWidget" name="widget" native="true">
@@ -136,6 +136,13 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="styleSheet">
+               <string notr="true">QTextEdit {
+	font-family: Arial;
+	font-style: normal;
+	font-size: 14pt;
+}</string>
+              </property>
              </widget>
              <widget class="TagEditor" name="tgtEditor">
               <property name="sizePolicy">
@@ -155,6 +162,13 @@
                 <width>16777215</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QTextEdit {
+	font-family: Arial;
+	font-style: normal;
+	font-size: 14pt;
+}</string>
               </property>
              </widget>
             </widget>

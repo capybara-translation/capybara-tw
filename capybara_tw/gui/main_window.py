@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.centralGridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.centralGridLayout.setContentsMargins(0, 0, 0, 0)
+        self.centralGridLayout.setContentsMargins(5, 5, 5, 5)
         self.centralGridLayout.setObjectName("centralGridLayout")
         self.widget = QtWidgets.QWidget(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -78,6 +78,11 @@ class Ui_MainWindow(object):
         self.srcEditor.setSizePolicy(sizePolicy)
         self.srcEditor.setMinimumSize(QtCore.QSize(0, 0))
         self.srcEditor.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.srcEditor.setStyleSheet("QTextEdit {\n"
+"    font-family: Arial;\n"
+"    font-style: normal;\n"
+"    font-size: 14pt;\n"
+"}")
         self.srcEditor.setObjectName("srcEditor")
         self.tgtEditor = TagEditor(self.splitter_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -87,6 +92,11 @@ class Ui_MainWindow(object):
         self.tgtEditor.setSizePolicy(sizePolicy)
         self.tgtEditor.setMinimumSize(QtCore.QSize(0, 0))
         self.tgtEditor.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.tgtEditor.setStyleSheet("QTextEdit {\n"
+"    font-family: Arial;\n"
+"    font-style: normal;\n"
+"    font-size: 14pt;\n"
+"}")
         self.tgtEditor.setObjectName("tgtEditor")
         self.editorGridLayout.addWidget(self.splitter_2, 2, 0, 1, 1)
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
