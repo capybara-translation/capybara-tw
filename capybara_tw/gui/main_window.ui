@@ -348,7 +348,7 @@
     <string>Move to previous segment</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Up</string>
+    <string>Alt+Up</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
@@ -359,7 +359,7 @@
     <string>Move to next segment</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Down</string>
+    <string>Alt+Down</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -373,7 +373,7 @@
     <string>Move to first segment</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Home</string>
+    <string>Alt+Home</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
@@ -384,7 +384,7 @@
     <string>Move to last segment</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+End</string>
+    <string>Alt+End</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>

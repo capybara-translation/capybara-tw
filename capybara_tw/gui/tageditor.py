@@ -135,6 +135,7 @@ class TagEditor(QTextEdit):
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
                 cursor.insertHtml(f'<span>{run}</span>')
+        self.setFocus()
         self.document().clearUndoRedoStacks()
 
     def set_readonly_with_text_selectable(self):

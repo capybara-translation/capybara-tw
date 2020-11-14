@@ -65,12 +65,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.actionMoveToFirstSegment.setToolTip(
             f'{self.actionMoveToFirstSegment.toolTip()} ({self.actionMoveToFirstSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToFirstSegment.triggered.connect(lambda: self.translationGrid.move_to_first_or_last_segment(True))
+
         self.actionMoveToLastSegment.setToolTip(
             f'{self.actionMoveToLastSegment.toolTip()} ({self.actionMoveToLastSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToLastSegment.triggered.connect(lambda: self.translationGrid.move_to_first_or_last_segment(False))
+
         self.actionMoveToNextSegment.setToolTip(
             f'{self.actionMoveToNextSegment.toolTip()} ({self.actionMoveToNextSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToNextSegment.triggered.connect(lambda: self.translationGrid.move_to_adjacent_segment(False))
+
         self.actionMoveToPreviousSegment.setToolTip(
             f'{self.actionMoveToPreviousSegment.toolTip()} ({self.actionMoveToPreviousSegment.shortcut().toString(QKeySequence.NativeText)})')
+        self.actionMoveToPreviousSegment.triggered.connect(lambda: self.translationGrid.move_to_adjacent_segment(True))
 
         confirm_icon = QIcon(':/icon/confirm.png')
         self.actionConfirmSegment.setIcon(confirm_icon)
@@ -101,3 +108,5 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.model = XliffModel(filename)
             self.translationGrid.setModel(self.model)
             self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)
+            self.translationGrid.setFocus()
+            self.translationGrid.move_to_first_or_last_segment(True)

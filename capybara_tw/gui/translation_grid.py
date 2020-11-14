@@ -37,3 +37,25 @@ class TranslationGrid(QTableView):
         ci = self.selectionModel().currentIndex()
         idx = ci.siblingAtColumn(1)
         idx.model().setData(idx, text, Qt.EditRole)
+
+    def move_to_adjacent_segment(self, prev=False):
+        if not self.selectionModel():
+            return
+        ci = self.selectionModel().currentIndex()
+        if prev:
+            idx = ci.siblingAtRow(ci.row() - 1)
+        else:
+            idx = ci.siblingAtRow(ci.row() + 1)
+        if idx.isValid():
+            self.setCurrentIndex(idx)
+
+    def move_to_first_or_last_segment(self, first=False):
+        if not self.selectionModel():
+            return
+        ci = self.selectionModel().currentIndex()
+        if first:
+            idx = ci.siblingAtRow(0)
+        else:
+            idx = ci.siblingAtRow(self.selectionModel().model().rowCount() - 1)
+        if idx.isValid():
+            self.setCurrentIndex(idx)
