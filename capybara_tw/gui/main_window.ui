@@ -136,6 +136,7 @@
     <addaction name="actionUnderlined"/>
     <addaction name="actionSubscript"/>
     <addaction name="actionSuperscript"/>
+    <addaction name="actionDisplayHiddenCharacters"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -174,6 +175,7 @@
    <addaction name="actionUnderlined"/>
    <addaction name="actionSubscript"/>
    <addaction name="actionSuperscript"/>
+   <addaction name="actionDisplayHiddenCharacters"/>
   </widget>
   <action name="actionBold">
    <property name="checkable">
@@ -305,6 +307,18 @@
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionDisplayHiddenCharacters">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icon/paragraph.png</normaloff>:/icon/paragraph.png</iconset>
+   </property>
+   <property name="text">
+    <string>Display hidden characters</string>
    </property>
   </action>
  </widget>

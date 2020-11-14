@@ -52,9 +52,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSubscript.setToolTip(
             f'{self.actionSubscript.toolTip()} ({self.actionSubscript.shortcut().toString(QKeySequence.NativeText)})')
 
+        paragraph_icon = QIcon(':/icon/paragraph.png')
+        self.actionDisplayHiddenCharacters.setIcon(paragraph_icon)
+        self.actionDisplayHiddenCharacters.setToolTip(
+            f'{self.actionDisplayHiddenCharacters.toolTip()}')
+        self.actionDisplayHiddenCharacters.triggered.connect(self.display_hidden_characters)
+
         self.actionOpen.triggered.connect(self.open_file)
 
         self.show()
+
+    def display_hidden_characters(self, display=False):
+        self.prevEditor.display_hidden_characters(display)
+        self.nextEditor.display_hidden_characters(display)
+        self.srcEditor.display_hidden_characters(display)
+        self.tgtEditor.display_hidden_characters(display)
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(

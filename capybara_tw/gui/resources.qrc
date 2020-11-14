@@ -2,6 +2,7 @@
   <qresource prefix="/">
     <file>icon/open.png</file>
     <file>icon/bold.png</file>
+    <file>icon/paragraph.png</file>
     <file>icon/italic.png</file>
     <file>icon/subscript.png</file>
     <file>icon/superscript.png</file>

@@ -136,11 +136,18 @@ class Ui_MainWindow(object):
         self.actionOpen.setIcon(icon5)
         self.actionOpen.setShortcutVisibleInContextMenu(True)
         self.actionOpen.setObjectName("actionOpen")
+        self.actionDisplayHiddenCharacters = QtWidgets.QAction(MainWindow)
+        self.actionDisplayHiddenCharacters.setCheckable(True)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/icon/paragraph.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionDisplayHiddenCharacters.setIcon(icon6)
+        self.actionDisplayHiddenCharacters.setObjectName("actionDisplayHiddenCharacters")
         self.menuFormat.addAction(self.actionBold)
         self.menuFormat.addAction(self.actionItalic)
         self.menuFormat.addAction(self.actionUnderlined)
         self.menuFormat.addAction(self.actionSubscript)
         self.menuFormat.addAction(self.actionSuperscript)
+        self.menuFormat.addAction(self.actionDisplayHiddenCharacters)
         self.menuFile.addAction(self.actionOpen)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -150,6 +157,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionUnderlined)
         self.toolBar.addAction(self.actionSubscript)
         self.toolBar.addAction(self.actionSuperscript)
+        self.toolBar.addAction(self.actionDisplayHiddenCharacters)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -177,6 +185,7 @@ class Ui_MainWindow(object):
         self.actionSuperscript.setShortcut(_translate("MainWindow", "Ctrl+Shift+_"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
+        self.actionDisplayHiddenCharacters.setText(_translate("MainWindow", "Display hidden characters"))
 from capybara_tw.gui.tageditor import TagEditor
 from capybara_tw.gui.translation_grid import TranslationGrid
 from . import resources_rc

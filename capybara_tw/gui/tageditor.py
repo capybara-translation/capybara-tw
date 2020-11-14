@@ -102,9 +102,6 @@ class TagEditor(QTextEdit):
         self.is_undoing = False
         self.setAcceptRichText(False)
         # self.setUndoRedoEnabled(False)
-        option = QTextOption()
-        option.setFlags(QTextOption.ShowTabsAndSpaces | QTextOption.ShowLineAndParagraphSeparators)
-        self.document().setDefaultTextOption(option)
 
         self.key_event_filter = KeyEventFilter()
         self.key_event_filter.install_to(self)
@@ -113,6 +110,12 @@ class TagEditor(QTextEdit):
 
         self.__register_tag_type()
         self.textChanged.connect(self.__on_text_changed)
+
+    def display_hidden_characters(self, display=False):
+        option = QTextOption()
+        if display:
+            option.setFlags(QTextOption.ShowTabsAndSpaces | QTextOption.ShowLineAndParagraphSeparators)
+        self.document().setDefaultTextOption(option)
 
     def initialize(self, text):
         text = text or ''
