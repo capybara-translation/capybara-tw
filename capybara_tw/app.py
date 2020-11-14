@@ -22,6 +22,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.srcEditor.segmentEdited.connect(self.translationGrid.set_source_segment)
         self.tgtEditor.segmentEdited.connect(self.translationGrid.set_target_segment)
+        self.srcEditor.segmentEdited.connect(self.translationGrid.resize_current_row)
+        self.tgtEditor.segmentEdited.connect(self.translationGrid.resize_current_row)
 
         self.__initialize_actions()
 
@@ -78,3 +80,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.translationGrid.setModel(self.model)
             self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)
             self.translationGrid.selectRow(0)
+            self.translationGrid.resizeRowsToContents()

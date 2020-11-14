@@ -22,7 +22,7 @@ class XliffModel(QAbstractTableModel):
         return len(self._headers)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if role in (Qt.DisplayRole, Qt.ToolTipRole):
+        if role in (Qt.DisplayRole,):
             tu = self._data[index.row()]
             return tu.source if index.column() == 0 else tu.target
 

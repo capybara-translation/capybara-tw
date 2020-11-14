@@ -117,6 +117,7 @@ class TagEditor(QTextEdit):
         self.document().setDefaultTextOption(option)
 
     def initialize(self, text):
+        blocked = self.blockSignals(True)
         text = text or ''
         self.setText('')
         cursor = self.textCursor()
@@ -133,9 +134,10 @@ class TagEditor(QTextEdit):
             else:
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
-                cursor.insertHtml(f'<span>{run}</span>')
+                cursor.insertHtml(f'<span style="white-space: pre;">{run}</span>')
         self.setFocus()
         self.document().clearUndoRedoStacks()
+        self.blockSignals(blocked)
 
     def set_readonly_with_text_selectable(self):
         self.setReadOnly(True)

@@ -1,7 +1,5 @@
-from PyQt5.QtCore import QItemSelection, pyqtSignal, Qt, QItemSelectionModel, QSize
+from PyQt5.QtCore import QItemSelection, pyqtSignal, Qt, QSize
 from PyQt5.QtWidgets import QTableView, QHeaderView
-
-from capybara_tw.gui.QToolTipper import QToolTipper
 
 
 class TranslationGrid(QTableView):
@@ -12,7 +10,6 @@ class TranslationGrid(QTableView):
         super().__init__(parent)
         self.setSortingEnabled(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Auto-fit column width
-        self.viewport().installEventFilter(QToolTipper(self))
 
     def selection_changed(self, selected: QItemSelection, deselected: QItemSelection) -> None:
         ci = self.selectionModel().currentIndex()
@@ -59,3 +56,10 @@ class TranslationGrid(QTableView):
 
     def sizeHint(self) -> QSize:
         return QSize(self.width(), 600)
+
+    def resize_current_row(self):
+        if not self.selectionModel():
+            return
+        ci = self.selectionModel().currentIndex()
+        if ci.isValid():
+            self.resizeRowToContents(ci.row())
