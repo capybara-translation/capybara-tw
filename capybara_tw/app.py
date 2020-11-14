@@ -15,14 +15,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.model = None
-        self.prevEditor.set_readonly_with_text_selectable()
-        self.nextEditor.set_readonly_with_text_selectable()
         self.srcEditor.set_readonly_with_text_selectable()
 
         self.translationGrid.currentSourceSegmentChanged.connect(self.srcEditor.initialize)
         self.translationGrid.currentTargetSegmentChanged.connect(self.tgtEditor.initialize)
-        self.translationGrid.previousSegmentChanged.connect(self.prevEditor.initialize)
-        self.translationGrid.nextSegmentChanged.connect(self.nextEditor.initialize)
 
         self.srcEditor.segmentEdited.connect(self.translationGrid.set_source_segment)
         self.tgtEditor.segmentEdited.connect(self.translationGrid.set_target_segment)
@@ -67,8 +63,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.open_file)
 
     def display_hidden_characters(self, display=False):
-        self.prevEditor.display_hidden_characters(display)
-        self.nextEditor.display_hidden_characters(display)
         self.srcEditor.display_hidden_characters(display)
         self.tgtEditor.display_hidden_characters(display)
 
@@ -83,5 +77,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.model = XliffModel(filename)
             self.translationGrid.setModel(self.model)
             self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)
-            self.translationGrid.setFocus()
-            self.translationGrid.move_to_first_or_last_segment(True)
+            self.translationGrid.selectRow(0)
