@@ -10,6 +10,8 @@ class TranslationGrid(QTableView):
         super().__init__(parent)
         self.setSortingEnabled(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Auto-fit column width
+        self.verticalScrollBar().setSingleStep(10)
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
     def selection_changed(self, selected: QItemSelection, deselected: QItemSelection) -> None:
         ci = self.selectionModel().currentIndex()
@@ -63,3 +65,17 @@ class TranslationGrid(QTableView):
         ci = self.selectionModel().currentIndex()
         if ci.isValid():
             self.resizeRowToContents(ci.row())
+
+    def on_scroll(self):
+        # Ensure that selected row moves when scrolling - it must be always visible.
+        current_idx = self.selectionModel().currentIndex()
+        rect = self.viewport().rect()
+        top_idx = self.indexAt(rect.topLeft())
+        if current_idx.row() < top_idx.row():
+            if top_idx.isValid():
+                self.setCurrentIndex(top_idx.siblingAtColumn(current_idx.column()))
+        else:
+            bottom_idx = self.indexAt(rect.bottomLeft())
+            if current_idx.row() > bottom_idx.row():
+                if bottom_idx.isValid():
+                    self.setCurrentIndex(bottom_idx.siblingAtColumn(current_idx.column()))
