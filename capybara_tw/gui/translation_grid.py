@@ -10,7 +10,6 @@ class TranslationGrid(QTableView):
         super().__init__(parent)
         self.setSortingEnabled(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Auto-fit column width
-        self.verticalScrollBar().setSingleStep(10)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
     def selection_changed(self, selected: QItemSelection, deselected: QItemSelection) -> None:
