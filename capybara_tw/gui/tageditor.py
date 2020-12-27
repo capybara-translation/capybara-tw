@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import re
 from enum import Enum, auto
+
+from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, pyqtSignal)
 from PyQt5.QtGui import (QTextOption, QContextMenuEvent, QTextObjectInterface, QTextFormat, QTextCharFormat,
                          QTextDocument, QFontMetrics, QPainter, QPainterPath, QColor, QBrush, QPen, QKeySequence,
                          QTextCursor)
 from PyQt5.QtWidgets import (QTextEdit, QApplication)
-from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, QRegExp, pyqtSignal)
+
 from capybara_tw.gui.wordboundary import BoundaryHandler
 
 OBJECT_REPLACEMENT_CHARACTER = 0xfffc
@@ -116,10 +118,7 @@ class TagEditor(QTextEdit):
             option.setFlags(QTextOption.ShowTabsAndSpaces | QTextOption.ShowLineAndParagraphSeparators)
         self.document().setDefaultTextOption(option)
 
-    def initialize(self, text):
-        blocked = self.blockSignals(True)
-        text = text or ''
-        self.setText('')
+    def insert_content(self, text):
         cursor = self.textCursor()
         for run in self.all_tags.split(text):
             if self.start_tags.search(run):
@@ -135,6 +134,12 @@ class TagEditor(QTextEdit):
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
                 cursor.insertHtml(f'<span style="white-space: pre;">{run}</span>')
+
+    def initialize(self, text):
+        blocked = self.blockSignals(True)
+        text = text or ''
+        self.setText('')
+        self.insert_content(text)
         self.setFocus()
         self.document().clearUndoRedoStacks()
         self.blockSignals(blocked)
@@ -157,33 +162,10 @@ class TagEditor(QTextEdit):
         char_format.setVerticalAlignment(QTextCharFormat.AlignTop)
         cursor.insertText(chr(OBJECT_REPLACEMENT_CHARACTER), char_format)
 
-    def __on_text_changed(self):
-        if self.is_undoing:
-            self.is_undoing = False
-            return
-        blocked = self.blockSignals(True)
-        self.textCursor().beginEditBlock()
-        doc = self.document()
-        pattern = QRegExp(r'\{\d{1,2}\}|\{\d{1,2}>|<\d{1,2}\}|\{j\}|\{[biu_^]+>|<[biu_^]+\}')
-        pattern.setMinimal(True)
-        cursor = QTextCursor(doc)
-        while True:
-            cursor = doc.find(pattern, cursor)
-            if cursor.isNull():
-                break
-            matched_str = cursor.selectedText()
-            if matched_str.endswith('>'):
-                tag_name = cursor.selectedText().strip('{>')
-                self.insert_tag(cursor, tag_name, tag_name, TagKind.START)
-            elif matched_str.startswith('<'):
-                tag_name = cursor.selectedText().strip('<}')
-                self.insert_tag(cursor, tag_name, tag_name, TagKind.END)
-            elif matched_str.startswith('{'):
-                tag_name = cursor.selectedText().strip('{}')
-                self.insert_tag(cursor, tag_name, tag_name, TagKind.EMPTY)
+    def contains_tag_str(self):
+        return self.all_tags.search(self.toPlainText()) is not None
 
-        self.textCursor().endEditBlock()
-        self.blockSignals(blocked)
+    def __on_text_changed(self):
         self.segmentEdited.emit(self.to_model_data())
 
     def contextMenuEvent(self, e: QContextMenuEvent) -> None:
@@ -199,7 +181,8 @@ class TagEditor(QTextEdit):
     def insertFromMimeData(self, source: QMimeData) -> None:
         if source.hasText():
             text = source.text().replace(chr(0xa), chr(LINE_SEPARATOR))
-            super().insertPlainText(text)
+            self.insert_content(text)
+            # super().insertPlainText(text)
 
     # Called when a drag and drop operation is started, or when data is copied to the clipboard.
     def createMimeDataFromSelection(self) -> QMimeData:
@@ -214,6 +197,18 @@ class TagEditor(QTextEdit):
         return mime
 
     def to_model_data_in_range(self, start: int, end: int) -> str:
+        """ Converts the specified range of editor content into model data.
+
+        Args:
+            start: start position of the range
+            end: end position of the range
+
+        Returns:
+            A model data string within the specified range.
+            For example:
+
+            an {2>apple<2} on the {b>table<b}
+        """
         doc = self.document()
         substrings = []
         for pos in range(start, end):
@@ -239,6 +234,14 @@ class TagEditor(QTextEdit):
         return text
 
     def to_model_data(self) -> str:
+        """ Converts editor content to model data.
+
+        Returns:
+            A model data string containing tags that have been converted back from tag objects.
+            For example:
+
+            {1} There is an {2>apple<2} on the {b>table<b} that I bought {3>yesterday<3}.
+        """
         start_pos = 0
         end_pos = self.document().characterCount() - 1  # subtract len of paragraph separator at the end
         text = self.to_model_data_in_range(start_pos, end_pos)
