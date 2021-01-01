@@ -216,12 +216,15 @@
     </property>
     <addaction name="actionConfirmSegment"/>
     <addaction name="actionUnconfirmSegment"/>
+    <addaction name="actionInsertTag"/>
+    <addaction name="actionExpandTags"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
    </widget>
    <widget class="QMenu" name="menuNavigate">
     <property name="title">
@@ -258,6 +261,7 @@
    <addaction name="separator"/>
    <addaction name="actionConfirmSegment"/>
    <addaction name="actionUnconfirmSegment"/>
+   <addaction name="actionInsertTag"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -358,6 +362,44 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Return</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icon/save.png</normaloff>:/icon/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionInsertTag">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icon/tag.png</normaloff>:/icon/tag.png</iconset>
+   </property>
+   <property name="text">
+    <string>Insert tag</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionExpandTags">
+   <property name="text">
+    <string>Expand tags</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+T</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>

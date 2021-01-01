@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import re
 from enum import Enum, auto
+from typing import Optional, Tuple
 
 from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, pyqtSignal)
 from PyQt5.QtGui import (QTextOption, QContextMenuEvent, QTextObjectInterface, QTextFormat, QTextCharFormat,
                          QTextDocument, QFontMetrics, QPainter, QPainterPath, QColor, QBrush, QPen, QKeySequence,
-                         QTextCursor)
+                         QTextCursor, QFocusEvent)
 from PyQt5.QtWidgets import (QTextEdit, QApplication)
 
 from capybara_tw.gui.wordboundary import BoundaryHandler
+from capybara_tw.model.capy_trans_unit import CapyTransUnit
 
 OBJECT_REPLACEMENT_CHARACTER = 0xfffc
 LINE_SEPARATOR = 0x2028
@@ -97,11 +99,12 @@ class TagEditor(QTextEdit):
     empty_tags = re.compile(r'({[0-9]{1,2}\}|{j\})')
     all_tags = re.compile(r'({[biu_^]+?>|<[biu_^]+?\}|{[0-9]{1,2}>|<[0-9]{1,2}\}|{[0-9]{1,2}\}|{j\})')
 
+    focusedIn = pyqtSignal(bool)
     segmentEdited = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.is_undoing = False
+        self.tu: Optional[CapyTransUnit] = None
         self.setAcceptRichText(False)
 
         self.key_event_filter = KeyEventFilter()
@@ -111,6 +114,38 @@ class TagEditor(QTextEdit):
 
         self.__register_tag_type()
         self.textChanged.connect(self.__on_text_changed)
+
+    @property
+    def is_source(self) -> bool:
+        name = self.objectName()
+        if name == 'srcEditor':
+            return True
+        if name == 'tgtEditor':
+            return False
+        raise AttributeError('No ''is_source'' attribute')
+
+    def initialize(self, tu: CapyTransUnit) -> None:
+        """Initializes the editor with tu. Called when the selected segment has been changed on TranslationGrid.
+
+        Args:
+            tu: Translation unit
+        """
+        blocked = self.blockSignals(True)
+        self.tu = tu
+        text = tu.source.text if self.is_source else tu.target.text
+        self.setText('')
+        self.insert_content(text or '')
+        self.setFocus()
+        self.document().clearUndoRedoStacks()
+        self.blockSignals(blocked)
+
+    def focusInEvent(self, e: QFocusEvent) -> None:
+        super(TagEditor, self).focusInEvent(e)
+        self.focusedIn.emit(True)
+
+    def focusOutEvent(self, e: QFocusEvent) -> None:
+        super(TagEditor, self).focusOutEvent(e)
+        self.focusedIn.emit(False)
 
     def display_hidden_characters(self, display=False):
         option = QTextOption()
@@ -122,27 +157,18 @@ class TagEditor(QTextEdit):
         cursor = self.textCursor()
         for run in self.all_tags.split(text):
             if self.start_tags.search(run):
-                name = run.strip('{>')
-                self.insert_tag(cursor, name, name, TagKind.START)
+                tag_id = run.strip('{>')
+                self.insert_tag(cursor, tag_id, tag_id, TagKind.START)
             elif self.end_tags.search(run):
-                name = run.strip('<}')
-                self.insert_tag(cursor, name, name, TagKind.END)
+                tag_id = run.strip('<}')
+                self.insert_tag(cursor, tag_id, tag_id, TagKind.END)
             elif self.empty_tags.search(run):
-                name = run.strip('{}')
-                self.insert_tag(cursor, name, name, TagKind.EMPTY)
+                tag_id = run.strip('{}')
+                self.insert_tag(cursor, tag_id, tag_id, TagKind.EMPTY)
             else:
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
                 cursor.insertHtml(f'<span style="white-space: pre;">{run}</span>')
-
-    def initialize(self, text):
-        blocked = self.blockSignals(True)
-        text = text or ''
-        self.setText('')
-        self.insert_content(text)
-        self.setFocus()
-        self.document().clearUndoRedoStacks()
-        self.blockSignals(blocked)
 
     def set_readonly_with_text_selectable(self):
         self.setReadOnly(True)
@@ -161,6 +187,51 @@ class TagEditor(QTextEdit):
         char_format.setObjectType(TagTextObject.type)
         char_format.setVerticalAlignment(QTextCharFormat.AlignTop)
         cursor.insertText(chr(OBJECT_REPLACEMENT_CHARACTER), char_format)
+
+    def __get_tag_info(self, run: str) -> Optional[Tuple[str, TagKind]]:
+        if self.start_tags.search(run):
+            return run.strip('{>'), TagKind.START
+        elif self.end_tags.search(run):
+            return run.strip('<}'), TagKind.END
+        elif self.empty_tags.search(run):
+            return run.strip('{}'), TagKind.EMPTY
+        else:
+            return None
+
+    def __get_next_tag(self) -> Optional[str]:
+        src_tags = self.all_tags.findall(self.tu.source.text)
+        content = self.to_model_data()
+        tgt_tags = self.all_tags.findall(content)
+        for src_tag in src_tags:
+            src_count = src_tags.count(src_tag)
+            tgt_count = tgt_tags.count(src_tag)
+            if src_count > tgt_count:
+                return src_tag
+        return None
+
+    def copy_tag_from_source(self) -> None:
+        if not self.hasFocus():
+            return
+        cursor = self.textCursor()
+        tag = self.__get_next_tag()
+        if not tag:
+            return
+        tag_id, kind = self.__get_tag_info(tag)
+        if cursor.hasSelection():
+            if kind == TagKind.EMPTY:
+                return
+            # Surround the selection with the tag pair.
+            start = cursor.selectionStart()
+            end = cursor.selectionEnd() + 1
+            cursor.setPosition(start)
+            self.insert_tag(cursor, tag_id, tag_id, TagKind.START)
+            cursor.setPosition(end)
+            self.insert_tag(cursor, tag_id, tag_id, TagKind.END)
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+        else:
+            # insert the tag at the current position.
+            self.insert_tag(cursor, tag_id, tag_id, kind)
 
     def contains_tag_str(self):
         return self.all_tags.search(self.toPlainText()) is not None
@@ -268,6 +339,5 @@ class KeyEventFilter(QObject):
             if QKeySequence(modifiers | key).matches(QKeySequence.Undo):
                 # TODO: handle right-click undo
                 print('undo')
-                self.widget.is_undoing = True
 
         return QObject.eventFilter(self, obj, event)

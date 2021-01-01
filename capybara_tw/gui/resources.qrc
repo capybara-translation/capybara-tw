@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/">
+    <file>icon/tag.png</file>
+    <file>icon/save.png</file>
     <file>icon/confirm.png</file>
     <file>icon/unconfirm.png</file>
     <file>icon/open.png</file>

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from typing import Optional
+
 from PyQt5.Qt import QMainWindow
 from PyQt5.QtCore import QDir
 from PyQt5.QtGui import QIcon, QKeySequence
@@ -14,7 +16,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.model = None
+        self.model: Optional[XliffModel] = None
         self.srcEditor.set_readonly_with_text_selectable()
 
         self.translationGrid.currentSourceSegmentChanged.connect(self.srcEditor.initialize)
@@ -26,6 +28,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tgtEditor.segmentEdited.connect(self.translationGrid.resize_current_row)
 
         self.__initialize_actions()
+        self.__enable_actions(False)
 
         self.show()
 
@@ -63,6 +66,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             f'{self.actionUnconfirmSegment.toolTip()} ({self.actionUnconfirmSegment.shortcut().toString(QKeySequence.NativeText)})')
 
         self.actionOpen.triggered.connect(self.open_file)
+        self.actionSave.triggered.connect(self.save)
+        self.actionInsertTag.triggered.connect(self.tgtEditor.copy_tag_from_source)
+        # Disable actionInsertTag when srcEditor is in focus
+        self.srcEditor.focusedIn.connect(lambda v: self.actionInsertTag.setDisabled(not self.model or v))
+
+    def __enable_actions(self, is_enabled: bool) -> None:
+        self.actionDisplayHiddenCharacters.setEnabled(is_enabled)
+        self.actionMoveToFirstSegment.setEnabled(is_enabled)
+        self.actionMoveToLastSegment.setEnabled(is_enabled)
+        self.actionMoveToPreviousSegment.setEnabled(is_enabled)
+        self.actionMoveToNextSegment.setEnabled(is_enabled)
+        self.actionConfirmSegment.setEnabled(is_enabled)
+        self.actionUnconfirmSegment.setEnabled(is_enabled)
+        self.actionInsertTag.setEnabled(is_enabled)
 
     def display_hidden_characters(self, display=False):
         self.srcEditor.display_hidden_characters(display)
@@ -71,9 +88,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(
             self,
-            caption="Select an mxliff file to open...",
+            caption="Select a capyxliff file to open...",
             directory=QDir.homePath(),
-            filter='Mxliff Files (*.mxliff) ;;All Files (*)',
+            filter='Capyxliff Files (*.capyxliff) ;;All Files (*)',
         )
         if filename:
             self.model = XliffModel(filename)
@@ -81,3 +98,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)
             self.translationGrid.selectRow(0)
             self.translationGrid.resizeRowsToContents()
+            self.__enable_actions(True)
+
+    def save(self):
+        if self.model:
+            self.model.save_data()

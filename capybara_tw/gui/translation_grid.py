@@ -1,10 +1,16 @@
+from typing import Tuple
+
 from PyQt5.QtCore import QItemSelection, pyqtSignal, Qt, QSize
 from PyQt5.QtWidgets import QTableView, QHeaderView
 
+from capybara_tw.model.capy_trans_unit import CapyTransUnit
+from capybara_tw.xliff_model import GetTransUnitRole
+
 
 class TranslationGrid(QTableView):
-    currentSourceSegmentChanged = pyqtSignal(str)
-    currentTargetSegmentChanged = pyqtSignal(str)
+    currentSourceSegmentChanged = pyqtSignal(CapyTransUnit)  # Tuple of bool and CapyTransUnit
+    currentTargetSegmentChanged = pyqtSignal(CapyTransUnit)  # Tuple of bool and CapyTransUnit
+    sourceColumnSelected = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -14,11 +20,11 @@ class TranslationGrid(QTableView):
 
     def selection_changed(self, selected: QItemSelection, deselected: QItemSelection) -> None:
         ci = self.selectionModel().currentIndex()
-        src = ci.siblingAtColumn(0).data()
-        tgt = ci.siblingAtColumn(1).data()
-
-        self.currentSourceSegmentChanged.emit(src)
-        self.currentTargetSegmentChanged.emit(tgt)
+        # Retrieve the selected translation unit and send it to the segment editors.
+        tu = ci.model().data(ci, GetTransUnitRole)
+        self.currentSourceSegmentChanged.emit(tu)
+        self.currentTargetSegmentChanged.emit(tu)
+        self.sourceColumnSelected.emit(ci.column() == 0)
 
     def set_source_segment(self, text):
         ci = self.selectionModel().currentIndex()
