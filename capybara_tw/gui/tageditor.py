@@ -153,18 +153,12 @@ class TagEditor(QTextEdit):
             option.setFlags(QTextOption.ShowTabsAndSpaces | QTextOption.ShowLineAndParagraphSeparators)
         self.document().setDefaultTextOption(option)
 
-    def insert_content(self, text):
+    def insert_content(self, text: str) -> None:
         cursor = self.textCursor()
         for run in self.all_tags.split(text):
-            if self.start_tags.search(run):
-                tag_id = run.strip('{>')
-                self.insert_tag(cursor, tag_id, tag_id, TagKind.START)
-            elif self.end_tags.search(run):
-                tag_id = run.strip('<}')
-                self.insert_tag(cursor, tag_id, tag_id, TagKind.END)
-            elif self.empty_tags.search(run):
-                tag_id = run.strip('{}')
-                self.insert_tag(cursor, tag_id, tag_id, TagKind.EMPTY)
+            tag_id, tag_kind = self.__get_tag_info(run)
+            if tag_id:
+                self.insert_tag(cursor, tag_id, tag_id, tag_kind)
             else:
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
@@ -188,7 +182,7 @@ class TagEditor(QTextEdit):
         char_format.setVerticalAlignment(QTextCharFormat.AlignTop)
         cursor.insertText(chr(OBJECT_REPLACEMENT_CHARACTER), char_format)
 
-    def __get_tag_info(self, run: str) -> Optional[Tuple[str, TagKind]]:
+    def __get_tag_info(self, run: str) -> Tuple[Optional[str], Optional[TagKind]]:
         if self.start_tags.search(run):
             return run.strip('{>'), TagKind.START
         elif self.end_tags.search(run):
@@ -196,7 +190,7 @@ class TagEditor(QTextEdit):
         elif self.empty_tags.search(run):
             return run.strip('{}'), TagKind.EMPTY
         else:
-            return None
+            return None, None
 
     def __get_next_tag(self) -> Optional[str]:
         src_tags = self.all_tags.findall(self.tu.source.text)

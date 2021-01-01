@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import typing
-from enum import Enum
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 
 from capybara_tw.model.capy_xliff import CapyXliff
-
 
 GetSourceRole = Qt.UserRole + 1
 GetTargetRole = Qt.UserRole + 2
