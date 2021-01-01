@@ -71,6 +71,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Disable actionInsertTag when srcEditor is in focus
         self.srcEditor.focusedIn.connect(lambda v: self.actionInsertTag.setDisabled(not self.model or v))
 
+        self.actionExpandTags.triggered.connect(self.srcEditor.expand_tags)
+        self.actionExpandTags.triggered.connect(self.tgtEditor.expand_tags)
+
     def __enable_actions(self, is_enabled: bool) -> None:
         self.actionDisplayHiddenCharacters.setEnabled(is_enabled)
         self.actionMoveToFirstSegment.setEnabled(is_enabled)

@@ -6,7 +6,9 @@ from typing import List, Optional
 from lxml import etree
 
 from capybara_tw.model.capy_alt_trans import CapyAltTrans
+from capybara_tw.model.capy_content import CapyContent
 from capybara_tw.model.capy_source import CapySource
+from capybara_tw.model.capy_tag import CapyTag
 from capybara_tw.model.capy_target import CapyTarget
 from capybara_tw.model.capy_source_props import CapySourceProps
 from capybara_tw.model.capy_target_props import CapyTargetProps
@@ -33,6 +35,45 @@ class CapyTransUnit(object):
         self.translate = True
         self.capy_source_props = None
         self.capy_target_props = None
+
+    def find_tag_by_id(self, tag_id: str, from_source: bool) -> Optional[CapyTag]:
+        """ Finds a tag by id.
+
+        Args:
+            tag_id: Tag id
+            from_source: True to get the tag from source tag list, otherwise from target tag list.
+
+        Returns: A CapyTag object if found. None if not found.
+
+        """
+        tags = self.capy_source_props.tags if from_source else self.capy_target_props.tags
+        for tag in tags:
+            if tag.id == tag_id:
+                return tag
+        return None
+
+    def add_tag(self, tag_id: str, content: str, to_source: bool) -> Optional[CapyTag]:
+        """ Adds a tag definition to source/target tag list.
+
+        Args:
+            tag_id: Tag id
+            content: Tag content
+            to_source: True to add the tag to source tag list, otherwise to target tag list.
+
+        Returns: A CapyTag object if succeeded. None if failed because the list already contains a tag having the same id.
+
+        """
+        tags = self.capy_source_props.tags if to_source else self.capy_target_props.tags
+        for tag in tags:
+            if tag.id == tag_id:
+                return None
+
+        tag = CapyTag()
+        tag.id = tag_id
+        tag.content = CapyContent()
+        tag.content.value = content
+        tags.append(tag)
+        return tag
 
     @classmethod
     def from_element(cls, elem) -> CapyTransUnit:

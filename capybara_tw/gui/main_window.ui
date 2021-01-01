@@ -395,6 +395,9 @@
    </property>
   </action>
   <action name="actionExpandTags">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Expand tags</string>
    </property>

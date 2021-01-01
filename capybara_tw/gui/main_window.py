@@ -179,6 +179,7 @@ class Ui_MainWindow(object):
         self.actionInsertTag.setShortcutVisibleInContextMenu(True)
         self.actionInsertTag.setObjectName("actionInsertTag")
         self.actionExpandTags = QtWidgets.QAction(MainWindow)
+        self.actionExpandTags.setCheckable(True)
         self.actionExpandTags.setShortcutVisibleInContextMenu(True)
         self.actionExpandTags.setObjectName("actionExpandTags")
         self.menuFormat.addAction(self.actionDisplayHiddenCharacters)

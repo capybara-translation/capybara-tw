@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import re
 from enum import Enum, auto
-from typing import Optional, Tuple
+from typing import Optional
+import dataclasses
 
 from PyQt5.QtCore import (Qt, QMimeData, QObject, QSizeF, QRectF, QEvent, pyqtSignal)
 from PyQt5.QtGui import (QTextOption, QContextMenuEvent, QTextObjectInterface, QTextFormat, QTextCharFormat,
@@ -27,7 +28,11 @@ class TagTextObject(QObject, QTextObjectInterface):
     type = QTextFormat.UserObject + 1
     name_propid = 10000
     kind_propid = 10001
-    content_propId = 10002
+    content_propid = 10002
+
+    def __init__(self, parent=None):
+        super(TagTextObject, self).__init__(parent)
+        self.is_expanded = False
 
     @staticmethod
     def stringify(char_format: QTextCharFormat) -> str:
@@ -43,8 +48,13 @@ class TagTextObject(QObject, QTextObjectInterface):
         charformat = format_.toCharFormat()
         font = charformat.font()
         fm = QFontMetrics(font)
-        tag_name = format_.property(TagTextObject.name_propid)
-        sz = fm.boundingRect(tag_name).size()
+        if self.is_expanded:
+            name = format_.property(TagTextObject.name_propid)
+            content = format_.property(TagTextObject.content_propid)
+            value = f'{name} {content}'
+        else:
+            value = format_.property(TagTextObject.name_propid)
+        sz = fm.boundingRect(value).size()
         sz.setWidth(sz.width() + 12)
         sz.setHeight(sz.height() + 4)
         return QSizeF(sz)
@@ -89,8 +99,20 @@ class TagTextObject(QObject, QTextObjectInterface):
             painter.drawPath(path.simplified())
         else:
             painter.drawRoundedRect(rect, 4, 4)
-        tag_name = format_.property(TagTextObject.name_propid)
-        painter.drawText(rect, Qt.AlignHCenter | Qt.AlignCenter, tag_name)
+        if self.is_expanded:
+            tag_name = format_.property(TagTextObject.name_propid)
+            tag_content = format_.property(TagTextObject.content_propid)
+            text = f'{tag_name} {tag_content}'
+        else:
+            text = format_.property(TagTextObject.name_propid)
+        painter.drawText(rect, Qt.AlignHCenter | Qt.AlignCenter, text)
+
+
+@dataclasses.dataclass
+class TagInfo:
+    id: str
+    content: str
+    kind: TagKind
 
 
 class TagEditor(QTextEdit):
@@ -112,7 +134,11 @@ class TagEditor(QTextEdit):
         self.mouse_event_filter = BoundaryHandler()
         self.mouse_event_filter.install_textedit(self)
 
-        self.__register_tag_type()
+        # Register tag object handler
+        self.tag_object_handler = TagTextObject(self)
+        document_layout = self.document().documentLayout()
+        document_layout.registerHandler(TagTextObject.type, self.tag_object_handler)
+
         self.textChanged.connect(self.__on_text_changed)
 
     @property
@@ -156,9 +182,9 @@ class TagEditor(QTextEdit):
     def insert_content(self, text: str) -> None:
         cursor = self.textCursor()
         for run in self.all_tags.split(text):
-            tag_id, tag_kind = self.__get_tag_info(run)
-            if tag_id:
-                self.insert_tag(cursor, tag_id, tag_id, tag_kind)
+            tag = self.__get_tag_info(run, from_source=self.is_source)
+            if tag:
+                self.insert_tag(cursor, tag.id, tag.content, tag.kind)
             else:
                 run = run.replace('\r\n', '\n').replace('\r', '\n')
                 run = run.replace('\n', '<br/>')
@@ -168,31 +194,37 @@ class TagEditor(QTextEdit):
         self.setReadOnly(True)
         self.setTextInteractionFlags(self.textInteractionFlags() | Qt.TextSelectableByKeyboard)
 
-    def __register_tag_type(self) -> None:
-        document_layout = self.document().documentLayout()
-        document_layout.registerHandler(TagTextObject.type, TagTextObject(self))
-
     @staticmethod
     def insert_tag(cursor: QTextCursor, name: str, content: str, kind: TagKind) -> None:
         char_format = QTextCharFormat()
         char_format.setProperty(TagTextObject.name_propid, name)
         char_format.setProperty(TagTextObject.kind_propid, kind)
+        char_format.setProperty(TagTextObject.content_propid, content)
         char_format.setToolTip(content)
         char_format.setObjectType(TagTextObject.type)
         char_format.setVerticalAlignment(QTextCharFormat.AlignTop)
         cursor.insertText(chr(OBJECT_REPLACEMENT_CHARACTER), char_format)
 
-    def __get_tag_info(self, run: str) -> Tuple[Optional[str], Optional[TagKind]]:
+    def __get_tag_info(self, run: str, from_source: bool) -> Optional[TagInfo]:
         if self.start_tags.search(run):
-            return run.strip('{>'), TagKind.START
+            tag_id = run.strip('{>')
+            kind = TagKind.START
+            capytag = self.tu.find_tag_by_id(tag_id, from_source)
         elif self.end_tags.search(run):
-            return run.strip('<}'), TagKind.END
+            tag_id = run.strip('<}')
+            kind = TagKind.END
+            capytag = self.tu.find_tag_by_id(tag_id, from_source)
         elif self.empty_tags.search(run):
-            return run.strip('{}'), TagKind.EMPTY
+            tag_id = run.strip('{}')
+            kind = TagKind.EMPTY
+            capytag = self.tu.find_tag_by_id(tag_id, from_source)
         else:
-            return None, None
+            return None
+        # Non-builtin tags (tags other than b|i|u|_|^|j) should have content, otherwise empty string
+        content = capytag.content.value if capytag else ''
+        return TagInfo(id=tag_id, kind=kind, content=content)
 
-    def __get_next_tag(self) -> Optional[str]:
+    def __get_next_tag(self) -> Optional[TagInfo]:
         src_tags = self.all_tags.findall(self.tu.source.text)
         content = self.to_model_data()
         tgt_tags = self.all_tags.findall(content)
@@ -200,7 +232,7 @@ class TagEditor(QTextEdit):
             src_count = src_tags.count(src_tag)
             tgt_count = tgt_tags.count(src_tag)
             if src_count > tgt_count:
-                return src_tag
+                return self.__get_tag_info(src_tag, from_source=True)
         return None
 
     def copy_tag_from_source(self) -> None:
@@ -210,22 +242,25 @@ class TagEditor(QTextEdit):
         tag = self.__get_next_tag()
         if not tag:
             return
-        tag_id, kind = self.__get_tag_info(tag)
         if cursor.hasSelection():
-            if kind == TagKind.EMPTY:
+            if tag.kind == TagKind.EMPTY:
                 return
             # Surround the selection with the tag pair.
             start = cursor.selectionStart()
             end = cursor.selectionEnd() + 1
             cursor.setPosition(start)
-            self.insert_tag(cursor, tag_id, tag_id, TagKind.START)
+            self.insert_tag(cursor, tag.id, tag.content, TagKind.START)
             cursor.setPosition(end)
-            self.insert_tag(cursor, tag_id, tag_id, TagKind.END)
+            self.insert_tag(cursor, tag.id, tag.content, TagKind.END)
             cursor.clearSelection()
             self.setTextCursor(cursor)
         else:
             # insert the tag at the current position.
-            self.insert_tag(cursor, tag_id, tag_id, kind)
+            self.insert_tag(cursor, tag.id, tag.content, tag.kind)
+
+        # Write back the copied tag to the target tag list if it's a non-builtin tag
+        if tag.content:
+            self.tu.add_tag(tag.id, tag.content, to_source=False)
 
     def contains_tag_str(self):
         return self.all_tags.search(self.toPlainText()) is not None
@@ -311,6 +346,13 @@ class TagEditor(QTextEdit):
         end_pos = self.document().characterCount() - 1  # subtract len of paragraph separator at the end
         text = self.to_model_data_in_range(start_pos, end_pos)
         return text
+
+    def expand_tags(self, is_expanded: bool):
+        self.tag_object_handler.is_expanded = is_expanded
+        self.viewport().update()
+        # Need to reset wrap mode...
+        self.setLineWrapMode(QTextEdit.NoWrap)
+        self.setLineWrapMode(QTextEdit.WidgetWidth)
 
 
 class KeyEventFilter(QObject):
