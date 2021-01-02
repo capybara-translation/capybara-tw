@@ -60,7 +60,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionDisplayHiddenCharacters.setIcon(paragraph_icon)
         self.actionDisplayHiddenCharacters.setToolTip(
             f'{self.actionDisplayHiddenCharacters.toolTip()}')
-        self.actionDisplayHiddenCharacters.triggered.connect(self.display_hidden_characters)
+        self.actionDisplayHiddenCharacters.toggled.connect(self.display_hidden_characters)
 
         self.actionMoveToFirstSegment.setToolTip(
             f'{self.actionMoveToFirstSegment.toolTip()} ({self.actionMoveToFirstSegment.shortcut().toString(QKeySequence.NativeText)})')
@@ -130,9 +130,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.srcEditor.setStyleSheet(f'font-size: {editor_font_size}pt')
         self.tgtEditor.setStyleSheet(f'font-size: {editor_font_size}pt')
 
+        display_hidden_chars = self.preferences.value('appearance/editors/display_hidden_chars', False, type=bool)
+        self.actionDisplayHiddenCharacters.setChecked(display_hidden_chars)
+
     def display_hidden_characters(self, display=False):
         self.srcEditor.display_hidden_characters(display)
         self.tgtEditor.display_hidden_characters(display)
+        self.preferences.setValue('appearance/editors/display_hidden_chars', display)
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(
