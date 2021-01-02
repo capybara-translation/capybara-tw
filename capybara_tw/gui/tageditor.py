@@ -144,6 +144,11 @@ class TagEditor(QTextEdit):
 
     @property
     def is_source(self) -> bool:
+        """Indicates which of the source and target segments this editor handles.
+
+        Returns: True to handle source segment, otherwise target segment.
+
+        """
         name = self.objectName()
         if name == 'srcEditor':
             return True
@@ -197,6 +202,14 @@ class TagEditor(QTextEdit):
 
     @staticmethod
     def insert_tag(cursor: QTextCursor, name: str, content: str, kind: TagKind) -> None:
+        """Inserts a tag object at the cursor position.
+
+        Args:
+            cursor: A QTextCursor object.
+            name: Tag name ("b|i|u|^|_|j" for builtin tags, an id for non-builtin tags)
+            content: Tag content for non-builtin tags. Empty string for builtin tags.
+            kind: Tag kind
+        """
         char_format = QTextCharFormat()
         char_format.setProperty(TagTextObject.name_propid, name)
         char_format.setProperty(TagTextObject.kind_propid, kind)
@@ -207,6 +220,17 @@ class TagEditor(QTextEdit):
         cursor.insertText(chr(OBJECT_REPLACEMENT_CHARACTER), char_format)
 
     def __get_tag_info(self, run: str, from_source: bool) -> Optional[TagInfo]:
+        """Converts a tag string ("{1>", "<1}", "{1}", etc.) into a TagInfo Object containing a tag id, kind, content.
+        The content will be retrieved from source or target props in the translation unit,
+        so from_source argument needs to be supplied to determine which of source and target props to retrieve from.
+
+        Args:
+            run: A tag string ("{1>", "<1}", "{1}", etc.)
+            from_source: True to retrieve content from source props. False from target props.
+
+        Returns: A TagInfo object
+
+        """
         if self.start_tags.search(run):
             tag_id = run.strip('{>')
             kind = TagKind.START
@@ -226,6 +250,10 @@ class TagEditor(QTextEdit):
         return TagInfo(id=tag_id, kind=kind, content=content)
 
     def __get_next_tag(self) -> Optional[TagInfo]:
+        """Retrieves the first one from the tags that exist in source but not in target.
+
+        Returns: A TagInfo object
+        """
         src_tags = self.all_tags.findall(self.tu.source.text)
         content = self.to_model_data()
         tgt_tags = self.all_tags.findall(content)
@@ -237,6 +265,8 @@ class TagEditor(QTextEdit):
         return None
 
     def copy_tag_from_source(self) -> None:
+        """Copies a tag from source to target.
+        """
         if not self.hasFocus():
             return
         cursor = self.textCursor()
@@ -264,7 +294,7 @@ class TagEditor(QTextEdit):
             self.tu.add_tag(tag.id, tag.content, to_source=False)
 
     def contains_tag_str(self):
-        return self.all_tags.search(self.toPlainText()) is not None
+        return self.all_tags.search(self.to_model_data()) is not None
 
     def __on_text_changed(self):
         self.segmentEdited.emit(self.to_model_data())
@@ -349,6 +379,11 @@ class TagEditor(QTextEdit):
         return text
 
     def expand_tags(self, is_expanded: bool):
+        """ Expands or collapses tags.
+
+        Args:
+            is_expanded: True to expand.
+        """
         self.tag_object_handler.is_expanded = is_expanded
         self.viewport().update()
         # Need to reset wrap mode...
