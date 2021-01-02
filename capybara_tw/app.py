@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from typing import Optional
 
-from PyQt5.Qt import QMainWindow
-from PyQt5.QtCore import QDir, QSettings
+from PyQt5.Qt import QMainWindow, PYQT_VERSION_STR
+from PyQt5.QtCore import QDir, QSettings, QT_VERSION_STR
 from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import QFileDialog, QDialog
+from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox, QApplication
 
 from capybara_tw.gui.main_window import Ui_MainWindow
 from capybara_tw.gui.preferences_dialog import Ui_PreferencesDialog
@@ -100,6 +100,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionExpandTags.triggered.connect(self.tgtEditor.expand_tags)
 
         self.actionPreferences.triggered.connect(self.show_preferences_dialog)
+
+        tw = QApplication.instance()
+        message = (
+            f'{tw.applicationName()} {tw.applicationVersion()}\n'
+            f'Qt {QT_VERSION_STR} / PyQt {PYQT_VERSION_STR}\n'
+            f'Copyright © 2021 {tw.organizationName()}'
+        )
+
+        self.actionAbout.triggered.connect(lambda: QMessageBox.about(self, 'About', message))
 
     def show_preferences_dialog(self):
         ret = PreferencesDialog(self.preferences, self).exec()
