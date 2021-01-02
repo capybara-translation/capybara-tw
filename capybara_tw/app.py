@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from typing import Optional
 
 from PyQt5.Qt import QMainWindow, PYQT_VERSION_STR
@@ -55,6 +56,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.show()
 
+    @property
+    def application_name(self) -> str:
+        tw = QApplication.instance()
+        return tw.applicationName()
+
+    @property
+    def application_version(self) -> str:
+        tw = QApplication.instance()
+        return tw.applicationVersion()
+
+    @property
+    def organization_name(self) -> str:
+        tw = QApplication.instance()
+        return tw.organizationName()
+
     def initialize_actions(self):
         paragraph_icon = QIcon(':/icon/paragraph.png')
         self.actionDisplayHiddenCharacters.setIcon(paragraph_icon)
@@ -101,11 +117,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.actionPreferences.triggered.connect(self.show_preferences_dialog)
 
-        tw = QApplication.instance()
         message = (
-            f'{tw.applicationName()} {tw.applicationVersion()}\n'
+            f'{self.application_name} {self.application_version}\n'
             f'Qt {QT_VERSION_STR} / PyQt {PYQT_VERSION_STR}\n'
-            f'Copyright © 2021 {tw.organizationName()}'
+            f'Copyright © 2021 {self.organization_name}'
         )
 
         self.actionAbout.triggered.connect(lambda: QMessageBox.about(self, 'About', message))
@@ -155,6 +170,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             filter='Capyxliff Files (*.capyxliff) ;;All Files (*)',
         )
         if filename:
+            self.setWindowTitle(f'{self.application_name} - {os.path.basename(filename)}')
             self.model = XliffModel(filename)
             self.translationGrid.setModel(self.model)
             self.translationGrid.selectionModel().selectionChanged.connect(self.translationGrid.selection_changed)

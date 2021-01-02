@@ -43,7 +43,11 @@ class XliffModel(QAbstractTableModel):
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> typing.Any:
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headers[section]
+            if section == 0:
+                lang = self.source_language
+            else:
+                lang = self.target_language
+            return f'{self._headers[section]} ({lang})'
         else:
             return super().headerData(section, orientation, role)
 
@@ -59,3 +63,15 @@ class XliffModel(QAbstractTableModel):
 
     def save_data(self):
         self.xliff.save(self.filename)
+
+    @property
+    def source_language(self) -> str:
+        if self.xliff:
+            return self.xliff.source_language
+        return ''
+
+    @property
+    def target_language(self) -> str:
+        if self.xliff:
+            return self.xliff.target_language
+        return ''

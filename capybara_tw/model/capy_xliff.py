@@ -21,6 +21,18 @@ class CapyXliff(object):
         self.capy_version = '1.0'
         self.files = []
 
+    @property
+    def source_language(self) -> str:
+        if self.files:
+            return self.files[0].source_language
+        return ''
+
+    @property
+    def target_language(self) -> str:
+        if self.files:
+            return self.files[0].target_language
+        return ''
+
     @classmethod
     def from_element(cls, elem) -> CapyXliff:
         obj = cls()
