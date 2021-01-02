@@ -48,10 +48,11 @@ class TagTextObject(QObject, QTextObjectInterface):
         charformat = format_.toCharFormat()
         font = charformat.font()
         fm = QFontMetrics(font)
-        if self.is_expanded:
+        tag_kind: TagKind = format_.property(TagTextObject.kind_propid)
+        if self.is_expanded and tag_kind in (TagKind.START, TagKind.EMPTY):
             name = format_.property(TagTextObject.name_propid)
             content = format_.property(TagTextObject.content_propid)
-            value = f'{name} {content}'
+            value = f'{name} {content}' if content else name
         else:
             value = format_.property(TagTextObject.name_propid)
         sz = fm.boundingRect(value).size()
@@ -99,10 +100,10 @@ class TagTextObject(QObject, QTextObjectInterface):
             painter.drawPath(path.simplified())
         else:
             painter.drawRoundedRect(rect, 4, 4)
-        if self.is_expanded:
+        if self.is_expanded and tag_kind in (TagKind.START, TagKind.EMPTY):
             tag_name = format_.property(TagTextObject.name_propid)
             tag_content = format_.property(TagTextObject.content_propid)
-            text = f'{tag_name} {tag_content}'
+            text = f'{tag_name} {tag_content}' if tag_content else tag_name
         else:
             text = format_.property(TagTextObject.name_propid)
         painter.drawText(rect, Qt.AlignHCenter | Qt.AlignCenter, text)
